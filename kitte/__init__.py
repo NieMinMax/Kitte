@@ -26,14 +26,6 @@ from models.icf_result import (
     Icf_Result,
     )
 
-# import apicron.tracking
-# import apicron.product
-# import apicron.stock
-# import apicron.oe_get_dl
-# import apicron.oe_save_dl
-# import apicron.shop_save_dl
-# import gen_data
-
 
 def main(global_config, **settings):
     """ This function returns a Pyramid WSGI application.
@@ -62,65 +54,13 @@ def main(global_config, **settings):
     #     port=settings['erp_redis_port'],
     #     db='',
     # )
-    # config.registry.shop_redis_pool = redis.ConnectionPool(
-    #     host=settings['shop_redis_host'],
-    #     port=settings['shop_redis_port'],
-    #     password=settings['shop_redis_pwd'],
-    #     db=''
-    # )
 
     scheduler = BackgroundScheduler()
-
-    # regen_data_trigger = IntervalTrigger(seconds=settings['regen_interval'])
-    # scheduler.add_job(
-    #     recommend.gen_data.job,
-    #     regen_data_trigger,
-    #     [settings]
-    # )
-
-    
-    ## 获取物流单号
-    # get_dl_trigger = IntervalTrigger(seconds=2000)
-    # scheduler.add_job(
-    #     apicron.oe_get_dl.job,
-    #     get_dl_trigger,
-    #     [config.registry.erp_redis_pool]
-    # )
-    ## 保存物流单号
-    # oe_save_dl_trigger = IntervalTrigger(seconds=500)
-    # scheduler.add_job(
-    #     apicron.oe_save_dl.job,
-    #     oe_save_dl_trigger,
-    #     [config.registry.erp_redis_pool]
-    # )
-    ## 保存物流单号至Shop
-    # shop_save_dl_trigger = IntervalTrigger(seconds=500)
-    # scheduler.add_job(
-    #     apicron.shop_save_dl.job,
-    #     shop_save_dl_trigger,
-    #     [config.registry.erp_redis_pool, config.registry.shop_redis_pool]
-    # )
-    
-    ## 物流轨迹
-    # tracking_trigger = IntervalTrigger(seconds=2000)
-    # scheduler.add_job(
-    #     apicron.tracking.job,
-    #     tracking_trigger,
-    #     [config.registry.erp_redis_pool]
-    # )
-
-    ## 产品上传
+    ## AR
     # product_trigger = IntervalTrigger(seconds=10000)
     # scheduler.add_job(
     #     apicron.product.job,
     #     product_trigger,
-    #     [(settings, config.registry.shop_redis_pool)]
-    # )
-    # ## 库存同步
-    # stock_trigger = IntervalTrigger(seconds=10000)
-    # scheduler.add_job(
-    #     apicron.stock.job,
-    #     stock_trigger,
     #     [(settings, config.registry.shop_redis_pool)]
     # )
     scheduler.start()
@@ -139,11 +79,7 @@ def main(global_config, **settings):
     # config.add_route('get_ar', '/get/rel')    
 
     
-    # config.add_route('tracking', '/tracking/{dl_sn}')
     # ## propogate
     # config.add_route('propagate_product', '/api/product/getcooperatedproduct_popergate/')
-    # config.add_route('propagate_order', '/api/orderline/getrebateorderlines_popergate/')    
-    # config.add_route('propagate_partner', '/api/customer/getpartnerinfo_popergate/')
-    
     config.scan()
     return config.make_wsgi_app()
