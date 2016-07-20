@@ -1,0 +1,16 @@
+pyramid
+pyramid_tm
+psycopg2
+SQLAlchemy
+transaction
+apscheduler
+pyramid_rpc
+zope.sqlalchemy
+pyramid_chameleon
+pyramid_debugtoolbar
+waitress
+
+[testing]
+WebTest >= 1.3.1
+pytest
+pytest-cov

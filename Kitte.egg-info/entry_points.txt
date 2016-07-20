@@ -1,0 +1,5 @@
+      [paste.app_factory]
+      main = kitte:main
+      [console_scripts]
+      initialize_kitte_db = kitte.scripts.initializedb:main
+      
