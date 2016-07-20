@@ -1,6 +1,8 @@
 Kitte README
 ==================
 
+还没做完，还不能用！
+
 For Memorization!
 
 Getting Started
