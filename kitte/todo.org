@@ -1,15 +1,5 @@
-1. 文件导入
+1. 文件导入: 多SQL支持, pandas文件读取支持
 
-2. 测试AR
+2. SVD
 
-3. 测试ICF
 
-4. 测试UCF
-
-5. 测试AE
-
-6. 测试wide and deep 推荐
-
-7. 测试SVD
-
-axs
