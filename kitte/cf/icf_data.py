@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import division
+from __future__ import division, print_function, absolute_import
 import logging
 from math import sqrt
 
@@ -15,6 +15,8 @@ log = logging.getLogger(__name__)
 求出任意2个产品的相似度，然后用相近的用户进行推荐
 """
 
+Icf_Calc_Flag = False
+
 def _get_dataset():
     """
     生成一个巨大的用户数组
@@ -27,7 +29,6 @@ def _get_dataset():
             """
             select user_id, product_id from sorder_line limit 5000 offset :skip_line
             """)
-        
         sql_answer = DBConnecion.execute(sql_str, skip_line = page_count*5000,
                                      ).fetchall()
         if sql_answer and sql_answer[0] and sql_answer[1] and sql_answer[2]:
@@ -142,28 +143,49 @@ def pearson_correlation(dataset, person1, person2):
 #     return recommendataions_list
 		
 
-def _save_score(one_user, rel_user, score):
-    if score > 0:
-        print one_user, rel_user, score
-        one_result = Icf_Result(
-            user_id = one_user,
-            rel_user_id = rel_user,
-            score = score,
-        )
-        DBSession.add(one_result)
+def _save_score(one_user, rel_user, score, db_session):
+    one_result = Icf_Result(
+        user_id = one_user,
+        rel_user_id = rel_user,
+        score = score,
+    )
+    db_session.add(one_result)
+    return
 
 
-def do_icf_data():
+def do_icf_data(db_session):
+    global Icf_Calc_Flag
+    if Icf_Calc_Flag:
+        log.info("Calculating, skip...")
+        return
+    log.info("Start Calculating")
+    Icf_Calc_Flag = True
+    db_session.query(Icf_Result).filter().delete()
+    db_session.commit()
     ## 获取每个用户全部购买产品
     all_data = _get_dataset()
     all_users = _get_all_users()
+    save_count = 0
     for one_user_line in all_users:
         for rel_user_line in all_users:
             if one_user_line != rel_user_line:
                 score = pearson_correlation(all_data, one_user_line[0], rel_user_line[0])
-                _save_score(one_user_line[0], rel_user_line[0], score)
-    
-def job():
-    do_icf_data()
+                if score > 0:
+                    _save_score(one_user_line[0], rel_user_line[0], score, db_session)
+                    save_count += 1
+                    if save_count >= 10000:
+                        save_count = 0
+                        db_session.commit()
+    if save_count > 0:
+        db_session.commit()                        
+    db_session.close()
+    Icf_Calc_Flag = False
+    log.info("Calculating Done...")
     return
+
+                
+    
+# def job():
+#     do_icf_data()
+#     return
 

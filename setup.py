@@ -1,4 +1,4 @@
-#coding:utf-8
+# -*- coding: utf-8 -*-
 import os
 
 from setuptools import setup, find_packages
@@ -21,8 +21,9 @@ requires = [
     'apscheduler',
     'pyramid_rpc',
     'zope.sqlalchemy',
-    # 'pandas',
-    ## todo: tensorflow
+    'numpy',
+    'pandas',
+    # 'tensorflow',
     'pyramid_chameleon',
     'pyramid_debugtoolbar',
     'waitress',
@@ -35,7 +36,7 @@ tests_require = [
     ]
 
 setup(name='Kitte',
-      version='0.0',
+      version='0.6',
       description='Kitte',
       long_description=README + '\n\n' + CHANGES,
       classifiers=[
@@ -44,9 +45,9 @@ setup(name='Kitte',
           "Topic :: Internet :: WWW/HTTP",
           "Topic :: Internet :: WWW/HTTP :: WSGI :: Application",
       ],
-      author='',
-      author_email='',
-      url='',
+      author='NieMinMax',
+      author_email='nie.minmax@gmail.com',
+      url='https://github.com/NieMinMax/Kitte',
       keywords='web pyramid pylons',
       packages=find_packages(),
       include_package_data=True,
@@ -55,6 +56,10 @@ setup(name='Kitte',
           'testing': tests_require,
       },
       install_requires=requires,
+      dependency_links=[
+          # 'https://storage.googleapis.com/tensorflow/linux/cpu/tensorflow-0.9.0-cp27-none-linux_x86_64.whl',
+          # 'https://storage.googleapis.com/tensorflow/linux/cpu/tensorflow-0.9.0-cp27-none-linux_x86_64.whl',
+      ],
       entry_points="""\
       [paste.app_factory]
       main = kitte:main

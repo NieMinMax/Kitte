@@ -4,6 +4,7 @@ from pyramid.config import Configurator
 from pyramid_rpc.xmlrpc import XMLRPCRenderer
 
 from sqlalchemy import engine_from_config
+from sqlalchemy.orm import sessionmaker
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
@@ -31,11 +32,14 @@ def main(global_config, **settings):
     """ This function returns a Pyramid WSGI application.
     """
     engine = engine_from_config(settings, 'sqlalchemy.')
+    
     DBSession.configure(bind=engine)
     Base.metadata.bind = engine
     Base.metadata.create_all(engine)
     config = Configurator(settings=settings)
-
+    ## db session
+    config.registry.dbmaker = sessionmaker(bind=engine)
+    
     ## xmlrpc
     # config.include('pyramid_rpc.xmlrpc')
     # config.add_renderer('apixmlrpc', XMLRPCRenderer(allow_none=True))
@@ -48,14 +52,7 @@ def main(global_config, **settings):
     config.include('pyramid_chameleon')
     config.add_static_view('static', 'static', cache_max_age=3600)
 
-    ## request中加入redis设置
-    # config.registry.erp_redis_pool = redis.ConnectionPool(
-    #     host=settings['erp_redis_host'],
-    #     port=settings['erp_redis_port'],
-    #     db='',
-    # )
-
-    scheduler = BackgroundScheduler()
+    # scheduler = BackgroundScheduler()
     ## AR
     # product_trigger = IntervalTrigger(seconds=10000)
     # scheduler.add_job(
@@ -63,20 +60,23 @@ def main(global_config, **settings):
     #     product_trigger,
     #     [(settings, config.registry.shop_redis_pool)]
     # )
-    scheduler.start()
+    # scheduler.start()
     
     ## route
     config.add_route('home', '/')
     config.add_route('import_data', '/do/import')
 
     config.add_route('do_ar', '/do/ar')
-    config.add_route('get_ar', '/get/rel')
+    config.add_route('get_ar', '/get/ar')
 
     config.add_route('do_ucf', '/do/ucf')
-    # config.add_route('get_ar', '/get/rel')    
+    config.add_route('get_ucf', '/get/ucf')    
 
-    config.add_route('do_icf', '/do/iycf')
-    # config.add_route('get_ar', '/get/rel')    
+    config.add_route('do_icf', '/do/icf')
+    config.add_route('get_icf', '/get/icf')    
+
+    config.add_route('do_ae', '/do/ae')
+    config.add_route('get_ae', '/get/ae')    
 
     
     # ## propogate

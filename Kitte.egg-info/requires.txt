@@ -6,6 +6,8 @@ transaction
 apscheduler
 pyramid_rpc
 zope.sqlalchemy
+numpy
+pandas
 pyramid_chameleon
 pyramid_debugtoolbar
 waitress

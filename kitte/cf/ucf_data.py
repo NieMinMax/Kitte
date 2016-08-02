@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import division
+from __future__ import division, print_function, absolute_import
 import logging
 from math import sqrt
 
@@ -14,6 +14,8 @@ log = logging.getLogger(__name__)
 """
 求出任意2个用户的相似度，然后用相近的产品推荐
 """
+
+Ucf_Calc_Flag = False
 
 def _get_dataset():
     """
@@ -141,28 +143,48 @@ def pearson_correlation(dataset, item1, item2):
 #     return recommendataions_list
 		
 
-def _save_score(one_product, rel_product, score):
-    if score > 0:
-        print one_product, rel_product, score
-        one_result = Ucf_Result(
-            product_id = one_product,
-            rel_product_id = rel_product,
-            score = score,
-        )
-        DBSession.add(one_result)
+def _save_score(one_product, rel_product, score, db_session):
+    one_result = Ucf_Result(
+        product_id = one_product,
+        rel_product_id = rel_product,
+        score = score,
+    )
+    db_session.add(one_result)
+    return
 
-def do_ucf_data():
+def do_ucf_data(db_session):
+    global Ucf_Calc_Flag
+    if Ucf_Calc_Flag:
+        log.info("Calculating, skip...")
+        return
+    log.info("Start Calculating")
+    Ucf_Calc_Flag = True
+    db_session.query(Ucf_Result).filter().delete()
+    db_session.commit()
     ## 获取每个用户全部购买产品
     all_data = _get_dataset()
     all_items = _get_all_items()
+    save_count = 0
     for one_item_line in all_items:
         for rel_item_line in all_items:
             if one_item_line != rel_item_line:
                 score = pearson_correlation(all_data, one_item_line[0], rel_item_line[0])
-                _save_score(one_item_line[0], rel_item_line[0], score)
-    
-
-def job():
-    do_ucf_data()
+                if score > 0:
+                    _save_score(one_item_line[0], rel_item_line[0], score, db_session)
+                    save_count += 1
+                    if save_count >= 10000:
+                        save_count = 0
+                        db_session.commit()
+    if save_count > 0:
+        db_session.commit()                        
+    db_session.close()
+    Ucf_Calc_Flag = False
+    log.info("Calculating Done...")
     return
+
+
+
+# def job():
+#     do_ucf_data()
+#     return
 
